@@ -1,0 +1,249 @@
+{
+  "name": "AI Audio Summarization and Speech Generation",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        208
+      ],
+      "id": "ae594a8d-3c62-48f0-99b8-4571339e8305",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "",
+          "name": "Google Gemini(PaLM) Api account 14260"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.groq.com/openai/v1/audio/transcriptions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer "
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "model",
+              "value": "whisper-large-v3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        144,
+        -48
+      ],
+      "id": "bd092c4a-ad71-48f4-b365-b8e0e91081b0",
+      "name": "Groq - Whisper Transcription"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.chatInput }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -80,
+        -48
+      ],
+      "id": "31d9c970-a8a2-4e46-bf9e-c7d1160e61d7",
+      "name": "Download Input Audio"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.audioFile }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        944,
+        -48
+      ],
+      "id": "f4ff3f87-6bef-4281-92fb-622240f25270",
+      "name": "Download Final Audio"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.murf.ai/v1/speech/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "ap2_0429f6cd-fa45-4d22-9ab7-419c2ea5ac22"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "voiceId",
+              "value": "en-US-natalie"
+            },
+            {
+              "name": "locale",
+              "value": "en-US"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        720,
+        -48
+      ],
+      "id": "75dfdd4c-9ec1-4f53-a785-37e4b4b52d69",
+      "name": "Murf Voice Generation"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an AI meeting assistant. Analyze the transcript below and create useful meeting notes.\n\nSTRICT RULES:\n- Output ONLY the sections shown below.\n- Do not add introductions or conclusions.\n- Keep each bullet concise and meaningful.\n- Do not invent information that is not present in the transcript.\n\nKEY POINTS\n- Write 3-5 important points from the conversation.\n\nACTION ITEMS\n- List specific tasks that were discussed or assigned.\n- If no action items are mentioned, write: \"No action items identified.\"\n\nDECISIONS\n- List important decisions or conclusions reached.\n- If no decisions are mentioned, write: \"No decisions identified.\"\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        368,
+        -48
+      ],
+      "id": "ba51c87e-f468-4c9a-a0e2-f37a69b20e37",
+      "name": "Gemini Meeting Summarizer"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -304,
+        -48
+      ],
+      "id": "a30da876-4817-4acc-b18f-6b73132dbaf3",
+      "name": "Audio URL Input",
+      "webhookId": "8216223a-0355-40d8-82ff-84a3b732ba13"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gemini Meeting Summarizer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq - Whisper Transcription": {
+      "main": [
+        [
+          {
+            "node": "Gemini Meeting Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Input Audio": {
+      "main": [
+        [
+          {
+            "node": "Groq - Whisper Transcription",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Murf Voice Generation": {
+      "main": [
+        [
+          {
+            "node": "Download Final Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Meeting Summarizer": {
+      "main": [
+        [
+          {
+            "node": "Murf Voice Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio URL Input": {
+      "main": [
+        [
+          {
+            "node": "Download Input Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b270dd9a-505d-4852-9bfe-7c6416dfbd15",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "969257b09ad2942bbaff2e2288304f4969030574d109cdeca05bf11f630884df"
+  },
+  "id": "LBoWIC8WaoRCYOWv",
+  "tags": []
+}
