@@ -13,17 +13,17 @@ An AI-powered n8n workflow that converts audio recordings into concise meeting n
 
 ## 🔄 Workflow
 
-# Audio URL
+  Audio URL
 ↓
-# Download Input Audio
+ Download Input Audio
 ↓
-# Groq Whisper Transcription
+ Groq Whisper Transcription
 ↓
-# Gemini Meeting Summarizer
+ Gemini Meeting Summarizer
 ↓
-# Murf Voice Generation
+ Murf Voice Generation
 ↓
-# Download Final Audio
+ Download Final Audio
 
 
 
