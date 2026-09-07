@@ -25,6 +25,8 @@ Murf Voice Generation
 ↓
 Download Final Audio
 
+![AI Audio Summarization Workflow](Workflow Diagram.png)
+
 ## 🛠️ Technologies
 
 - n8n
@@ -70,6 +72,3 @@ The workflow produces:
 - Decisions
 - Voice-generated summary
 
-## 👩‍💻 Author
-
-Harshitha D Bangera
