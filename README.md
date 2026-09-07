@@ -25,7 +25,7 @@ Murf Voice Generation
 ↓
 Download Final Audio
 
-![AI Audio Summarization Workflow](Workflow Diagram.png)
+
 
 ## 🛠️ Technologies
 
